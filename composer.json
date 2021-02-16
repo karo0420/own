@@ -1,0 +1,21 @@
+{
+    "name": "karo0420/own",
+    "description": "JWT Request Response",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "karo0420",
+            "email": "soleimanian.h2o@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "rbdwllr/reallysimplejwt": "^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Karo\\Own\\": "src/"
+        }
+    }
+}
