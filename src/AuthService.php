@@ -5,29 +5,33 @@ use ReallySimpleJWT\Token;
 
 class AuthService
 {
-    public function JWTValidate($tokenString, $alg = ['HS512'], $key = null) {
-        if (! $key)
-            $key = config('app.key');
+
+    public $isValid;
+    public $isSignValid;
+    public $isTimeValid;
+    public $payload;
+
+    public function JWTValidate($tokenString, $key, $alg = ['HS512']) {
         if (! $tokenString)
             return false;
         if ($header = Token::getHeader($tokenString, $key))
             if (!$header['typ'] || $header['typ'] != 'JWT')
                 return false;
-        $payload = Token::getPayload($tokenString, $key);
-        return Token::validate($tokenString, $key);
+
+        $this->payload     = Token::getPayload($tokenString, $key);
+        $this->isSignValid = Token::validate($tokenString, $key);
+        $this->isTimeValid = Token::validateExpiration($tokenString, $key);
+        $this->isValid     = $this->isSignValid && $this->isTimeValid;
+        return $this;
     }
 
-    public function JWTGenerate($payload = [], $expire = null, $alg = ['HS512'], $key = null) {
-        if (! $key)
-            $key = config('app.key');
+    public function JWTGenerate($key, $payload = [], $expire_sec = null, $alg = ['HS512']) {
+        $expire_sec = is_null($expire_sec)?604800:$expire_sec;
         $payload = [
             'iat' => time(),
-            'exp' => time() + 1000,
-            'iss' => 'Gateway',
-            'info'=> [
-                'u'=> 1,
-                'r'=> 'user'
-            ]
+            'exp' => time() + $expire_sec,
+            'iss' => 'Gateway-',
+            'info'=> $payload
         ];
         return Token::customPayload($payload, $key);
     }
